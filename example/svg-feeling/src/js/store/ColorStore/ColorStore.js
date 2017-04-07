@@ -1,6 +1,6 @@
 // LICENSE : MIT
 "use strict";
-import {Store} from "almin";
+import { Store } from "almin";
 /*
     Separate Store and State class pattern
 
@@ -15,22 +15,18 @@ export default class ColorStore extends Store {
     /**
      * @param {ColorMixerRepository} colorMixerRepository
      */
-    constructor({colorMixerRepository}) {
+    constructor({ colorMixerRepository }) {
         super();
         this.state = new ColorState({
-            currentColor: new Color({hexCode: "#fff"})
+            currentColor: new Color({ hexCode: "#fff" })
         });
-        // from Repository
-        colorMixerRepository.onChange(() => {
-            const color = colorMixerRepository.lastUsed().currentColor();
-            this.state = this.state.reduceDomain(color);
-            this.emitChange();
-        });
+        this.colorMixerRepository = colorMixerRepository;
     }
 
-    getState() {
+    getState({ color = this.state }, payload) {
+        const currentColor = this.colorMixerRepository.lastUsed().currentColor;
         return {
-            ColorState: this.state
+            color: color.update(currentColor)
         };
     }
 }

@@ -9,7 +9,9 @@ const uuid = require("uuid");
 export default class ColorMixer {
     constructor() {
         this.id = uuid();
-        this.colorHisotry = new ColorHistory();
+        this.colorHisotry = new ColorHistory(new Color({
+            hexCode: "#fff"
+        }));
     }
 
     /**
@@ -22,7 +24,7 @@ export default class ColorMixer {
     /**
      * @returns {Color|undefined}
      */
-    currentColor() {
+    get currentColor() {
         return this.colorHisotry.lastUsedColor();
     }
 
@@ -34,7 +36,7 @@ export default class ColorMixer {
         // eslint-disable-next-line
         while (true) {
             const hexCode = randomColor();
-            const color = new Color({hexCode});
+            const color = new Color({ hexCode });
             if (this.colorHisotry.isAlreadyUsedColor(color)) {
                 continue;
             }
@@ -56,14 +58,14 @@ export default class ColorMixer {
      * @param {number} height
      * @returns {RGBAColor}
      */
-    createColorFromPosition({x, y, width, height}) {
+    createColorFromPosition({ x, y, width, height }) {
         assert(typeof x === "number" && typeof y === "number");
         assert(typeof width === "number" && typeof height === "number");
         const alpha = (y / height);
         const xTen = (x / width) * 255;
         const yTen = (y / height) * 255;
         const rgba = `rgba(${parseInt(xTen, 10)}, ${parseInt(yTen, 10)}, ${parseInt(xTen, 10)}, ${alpha})`;
-        return new RGBAColor({rgba});
+        return new RGBAColor({ rgba });
     }
 
     setWallColor(color) {

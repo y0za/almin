@@ -16,23 +16,20 @@ export default class App extends React.Component {
         const context = AppContextLocator.context;
         // when change store, update component
         const onChangeHandler = () => {
-            return requestAnimationFrame(() => {
-                this.setState(context.getState());
-            });
+            this.setState(context.getState());
         };
         context.onChange(onChangeHandler);
     }
 
     render() {
-        const {ColorState, ColorHistoryState, WallColorState} = this.state;
-        const {wallColor} = WallColorState;
+        const { color, colorHistory, wallColor } = this.state;
         const style = {
-            backgroundColor: wallColor.rgba
+            backgroundColor: wallColor.wallColor.rgba
         };
         return <div className="App" style={style}>
             <MousePositionContainer />
-            <PlaygroundContainer ColorState={ColorState}/>
-            <HistoryContainer ColorHistoryState={ColorHistoryState}/>
+            <PlaygroundContainer ColorState={color}/>
+            <HistoryContainer ColorHistoryState={colorHistory}/>
         </div>;
     }
 }
