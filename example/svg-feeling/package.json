@@ -23,6 +23,8 @@
   },
   "scripts": {
     "clean": "rimraf public/build && mkdirp public/build",
+    "start": "npm-run-all -p server watch:css",
+    "server": "webpack-dev-server --hot --content-base public/ --open",
     "build:js": "NODE_ENV=production webpack -p",
     "build:css": "postcss --config postcss.config.js",
     "build": "npm-run-all clean --parallel build:*",

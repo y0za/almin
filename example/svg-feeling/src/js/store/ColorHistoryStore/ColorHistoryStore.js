@@ -15,4 +15,10 @@ export default class ColorHistoryStore extends Store {
     }
 
 
+    getState() {
+        const colorMixer = this.colorMixerRepository.lastUsed();
+        return {
+            colorHistory: new ColorHistoryState(colorMixer.colorHisotry)
+        };
+    }
 }
