@@ -1,23 +1,12 @@
 // LICENSE : MIT
 "use strict";
 import AlminLogger from "./AlminLogger";
-import { EventEmitter } from "events";
-import {
-    AnyPayload,
-    CompletedPayload,
-    Context,
-    DidExecutedPayload,
-    DispatcherPayloadMeta,
-    ErrorPayload,
-    Payload,
-    Store,
-    WillExecutedPayload
-} from "almin";
+const EventEmitter = require("events");
 // FIXME: Almin 0.12 support pull-based Store
 // https://github.com/almin/almin/pull/154
 // Some Store must to have prevState arguments.
 // Call ths Store without argument, throw error
-const tryGetState = (store: Store) => {
+const tryGetState = store => {
     try {
         return store.getState();
     } catch (error) {
@@ -26,13 +15,7 @@ const tryGetState = (store: Store) => {
 };
 
 export default class SyncLogger extends EventEmitter {
-    _releaseHandlers: Array<() => void>;
-    _logMap: {
-        [extraProps: string]: any;
-    };
-    private logger: any;
-
-    constructor({ console }: { console: any }) {
+    constructor({ console }) {
         super();
         this._logMap = {};
         this._releaseHandlers = [];
@@ -50,20 +33,16 @@ export default class SyncLogger extends EventEmitter {
      * start logging for {@link context}
      * @param {Context} context
      */
-    startLogging(context: Context<any>) {
-        const onWillExecuteEachUseCase = (_payload: WillExecutedPayload, meta: DispatcherPayloadMeta) => {
-            if (!meta.useCase) {
-                return;
-            }
-            const useCaseName = meta.useCase.name;
-            this.logger.groupCollapsed(`\u{1F516} ${useCaseName}`, meta.timeStamp);
-            this._logMap[useCaseName] = meta.timeStamp;
-            this.logger.log(`${useCaseName} will execute`);
+    startLogging(context) {
+        const onWillExecuteEachUseCase = (payload, meta) => {
+            this.logger.groupCollapsed(`\u{1F516} ${meta.name}`, meta.timeStamp);
+            this._logMap[meta.useCase.name] = meta.timeStamp;
+            this.logger.log(`${meta.useCase.name} will execute`);
         };
-        const onDispatch = (payload: Payload | AnyPayload) => {
+        const onDispatch = payload => {
             this.logger.info(`\u{1F525} Dispatch:${String(payload.type)}`, payload);
         };
-        const onChange = (stores: Store[]) => {
+        const onChange = stores => {
             stores.forEach(store => {
                 const state = tryGetState(store);
                 this.logger.groupCollapsed(`\u{1F4BE} Store:${state.name} is Changed`);
@@ -71,22 +50,15 @@ export default class SyncLogger extends EventEmitter {
                 this.logger.groupEnd();
             });
         };
-        const onDidExecuteEachUseCase = (_payload: DidExecutedPayload, meta: DispatcherPayloadMeta) => {
-            const useCase = meta.useCase;
-            if (!useCase) {
-                return;
-            }
-            this.logger.log(`${useCase.name} did executed`);
+        const onDidExecuteEachUseCase = (payload, meta) => {
+            this.logger.log(`${meta.useCase.name} did executed`);
         };
-        const onErrorHandler = (payload: ErrorPayload, meta: DispatcherPayloadMeta) => {
+        const onErrorHandler = (payload, meta) => {
             this._logError(payload, meta);
         };
 
-        const onCompleteUseCase = (_payload: CompletedPayload, meta: DispatcherPayloadMeta) => {
+        const onCompleteUseCase = (payload, meta) => {
             const useCase = meta.useCase;
-            if (!useCase) {
-                return;
-            }
             const startTimeStamp = this._logMap[useCase.name];
             const takenTime = meta.timeStamp - startTimeStamp;
             this.logger.log(`${useCase.name} is completed`);
@@ -109,11 +81,11 @@ export default class SyncLogger extends EventEmitter {
      * add log to logger
      * @param {*} chunk
      */
-    addLog(chunk: any) {
+    addLog(chunk) {
         this.logger.log(chunk);
     }
 
-    _logError(payload: any, meta: DispatcherPayloadMeta) {
+    _logError(payload, meta) {
         // if has useCase and group by useCase
         const error = payload.error || "something wrong";
         if (meta.useCase) {

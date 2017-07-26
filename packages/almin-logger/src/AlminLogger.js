@@ -1,27 +1,15 @@
 // LICENSE : MIT
 "use strict";
-
+const EventEmitter = require("events");
 import SyncLogger from "./SyncLogger";
 import AsyncLogger from "./AsyncLogger";
-import { EventEmitter } from "events";
-import { Context } from "almin";
-
 const DefaultOptions = {
     // output log asynchronously
     async: true,
     // use `console` object for logging
     console: console
 };
-
-export interface AlminLoggerOptions {
-    console?: any;
-    async?: boolean;
-}
-
 export default class AlminLogger extends EventEmitter {
-    private isAsyncMode: boolean;
-    private logger: AsyncLogger | SyncLogger;
-
     /**
      * Event constants values
      * @returns {{start: string, output: string, flush: string, release: string}}
@@ -32,7 +20,7 @@ export default class AlminLogger extends EventEmitter {
         };
     }
 
-    constructor(options: AlminLoggerOptions = {}) {
+    constructor(options = {}) {
         super();
         // default logger is `console`
         const console = options.console || DefaultOptions.console;
@@ -59,19 +47,19 @@ export default class AlminLogger extends EventEmitter {
      * start logging for {@link context}
      * @param {Context} context
      */
-    startLogging(context: Context<any>) {
+    startLogging(context) {
         this.logger.startLogging(context);
     }
 
-    stopLogging(_context: Context<any>) {
-        this.logger.release();
+    stopLogging(context) {
+        this.logger.stopLogging(context);
     }
 
     /**
      * add log to logger
      * @param {*} chunk
      */
-    addLog(chunk: any) {
+    addLog(chunk) {
         this.logger.addLog(chunk);
     }
 
